@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lay Hong Seng</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-hotel"></i> Lay Hong Seng</h1>
+        <div class="building-selector">
+            <button class="building-btn active" data-building="main">ផ្ទះលិច</button>
+            <button class="building-btn" data-building="new">ផ្ទះកើត</button>
+        </div>
+        <div class="global-actions">
+            <button id="clear-all-notes-btn" class="clear-all-notes-btn">
+                <i class="fas fa-trash-alt"></i> Clear All Notes
+            </button>
+            <button id="checkout-all-btn" class="checkout-all-btn">
+                <i class="fas fa-sign-out-alt"></i> Checkout All Rooms
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Building -->
+        <div class="building-section" id="main-building">
+            <div class="floors">
+                <!-- Ground Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ឡៅតឿ
+                    </h2>
+                    <div class="rooms-grid" id="ground-floor"></div>
+                </div>
+
+                <!-- First Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ទី 1
+                    </h2>
+                    <div class="rooms-grid" id="first-floor"></div>
+                </div>
+
+                <!-- Second Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ទី 2
+                    </h2>
+                    <div class="rooms-grid" id="second-floor"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Building -->
+        <div class="building-section" id="new-building" style="display: none;">
+            <div class="floors">
+                <!-- Ground Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ផ្ទាល់ដី
+                    </h2>
+                    <div class="rooms-grid" id="new-ground-floor"></div>
+                </div>
+
+                <!-- First Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ឡៅតឿ
+                    </h2>
+                    <div class="rooms-grid" id="new-first-floor"></div>
+                </div>
+
+                <!-- Second Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ទី 1
+                    </h2>
+                    <div class="rooms-grid" id="new-second-floor"></div>
+                </div>
+
+                <!-- Third Floor -->
+                <div class="floor">
+                    <h2 class="floor-title">
+                        <i class="fas fa-building"></i> ជាន់ ទី 2
+                    </h2>
+                    <div class="rooms-grid" id="new-third-floor"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <div class="loading-text">Updating status...</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

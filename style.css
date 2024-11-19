@@ -1,0 +1,786 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f1c40f;
+    --text-light: #ecf0f1;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    background-color: #f5f6fa;
+}
+
+.header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-light);
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header.condensed {
+    padding: 0.8rem;
+    background: rgba(44, 62, 80, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.header.condensed h1 {
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+}
+
+.header.condensed .building-selector {
+    transform: scale(0.95);
+}
+
+.header.condensed .checkout-all-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    white-space: nowrap;
+}
+
+.header h1 i {
+    font-size: 1.6rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.floors {
+    display: grid;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.floor {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.floor-title {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    border-bottom: 3px solid var(--accent-color);
+    padding-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+}
+
+.room-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 3px solid #e1e1e1;
+    position: relative;
+    overflow: hidden;
+}
+
+.room-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.status-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-weight: bold;
+    border-bottom-left-radius: 8px;
+}
+
+.room-card.checked-in {
+    border-color: var(--success-color);
+    background: linear-gradient(to right bottom, white, rgba(46, 204, 113, 0.1));
+}
+
+.room-card.checked-out {
+    border-color: var(--danger-color);
+    background: linear-gradient(to right bottom, white, rgba(231, 76, 60, 0.1));
+}
+
+.room-card.checked-in .status-indicator {
+    background-color: var(--success-color);
+}
+
+.room-card.checked-out .status-indicator {
+    background-color: var(--danger-color);
+}
+
+.room-number {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: bold;
+}
+
+.room-info {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.03);
+    font-size: 0.9rem;
+}
+
+.room-info i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+.room-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.status-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin: 10px 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--danger-color);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--success-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.loading-spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1000;
+    text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .container { padding: 0.5rem; }
+    .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+    .floor { padding: 1rem; }
+    .room-card { padding: 1rem; }
+    .status-btn { padding: 0.6rem; font-size: 0.8rem; }
+    .room-number { font-size: 1.2rem; }
+    .status-indicator { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    .header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.8rem;
+        text-align: center;
+        background: rgba(44, 62, 80, 0.98);
+    }
+
+    .header.condensed {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.3rem;
+    }
+
+    .header.condensed h1 {
+        font-size: 1.2rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .building-selector {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+    }
+
+    .building-btn {
+        flex: 1;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .header.condensed .building-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .checkout-all-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+    }
+
+    .header.condensed .checkout-all-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+        margin-top: 0.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.3rem;
+    }
+
+    .header.condensed h1 {
+        font-size: 1.1rem;
+    }
+
+    .building-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .header.condensed .building-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}
+
+.notes-section {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.03);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.room-notes {
+    flex: 1;
+    color: var(--secondary-color);
+}
+
+.add-note-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.add-note-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.checkout-all-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.checkout-all-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(to right, var(--danger-color), #c0392b);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.notes-modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.notes-modal h2 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.note-item {
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.note-text {
+    flex: 1;
+}
+
+.note-timestamp {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.delete-note-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-note-btn:hover {
+    opacity: 0.9;
+}
+
+.notes-actions {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.view-notes-btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.view-notes-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.close-modal-btn {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    opacity: 0.9;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.clear-notes-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.clear-notes-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-buttons .add-note-btn {
+    flex: 1;
+}
+
+.building-selector {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.4rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.building-btn {
+    background: transparent;
+    color: var(--text-light);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+.building-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.building-btn:hover::before {
+    transform: translateX(0);
+}
+
+.building-btn.active {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transform: translateY(-1px);
+}
+
+.building-btn:not(.active):hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.checkout-all-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.checkout-all-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(to right, var(--danger-color), #c0392b);
+}
+
+/* Building section animations */
+.building-section {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease-out;
+}
+
+#main-building {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.building-section[style*="display: block"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive design improvements */
+@media screen and (max-width: 1200px) {
+    .building-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .building-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .building-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .checkout-all-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .building-section {
+        padding: 1rem;
+    }
+
+    .building-card {
+        padding: 0.8rem;
+    }
+
+    .pending-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .submit-changes-btn,
+    .cancel-changes-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Add these styles for pending changes */
+.pending-changes-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.pending-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.submit-changes-btn {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.cancel-changes-btn {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.room-card.pending {
+    border-style: dashed;
+    opacity: 0.8;
+}
+
+.room-card.pending::after {
+    content: 'Pending';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: var(--warning-color);
+    color: var(--primary-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.global-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.clear-all-notes-btn {
+    background: var(--warning-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.clear-all-notes-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: linear-gradient(to right, var(--warning-color), #f39c12);
+}
+
+/* Update existing media queries for mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .global-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .clear-all-notes-btn,
+    .checkout-all-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
