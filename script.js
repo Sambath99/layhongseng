@@ -20,7 +20,7 @@ const TELEGRAM_BOT_TOKEN = '7059872493:AAGhsZJx9cUf_nQgrWye9sNCqt6Vk9B8BnM';
 const TELEGRAM_CHAT_ID = '-4583086340';
 
 // API base URL
-const API_BASE_URL = 'http://167.88.167.179:5656';
+const API_BASE_URL = 'https://sambath.axt.store';
 
 // Pending changes for batch processing
 let pendingChanges = {
