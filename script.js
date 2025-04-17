@@ -1,7 +1,3 @@
-// Replace these with your actual JSONBin.io credentials
-const API_KEY = '$2a$10$ecN6fjgbGla2pDCn7zYV1uaxDxNAQ.8chczGAcSCuGMQAFhPcXhEC';
-const BIN_ID = '6732c463ad19ca34f8c863ab';
-
 // Room configuration
 const rooms = {
     // Main Building
@@ -19,11 +15,14 @@ const rooms = {
 // Initialize room status data
 let roomStatus = {};
 
-// Add at the top with other constants
+// Telegram credentials
 const TELEGRAM_BOT_TOKEN = '7059872493:AAGhsZJx9cUf_nQgrWye9sNCqt6Vk9B8BnM';
 const TELEGRAM_CHAT_ID = '-4583086340';
 
-// Update pendingChanges to only track status updates (remove notes)
+// API base URL
+const API_BASE_URL = 'http://167.88.167.179:5656';
+
+// Pending changes for batch processing
 let pendingChanges = {
     statusUpdates: {}
 };
@@ -151,7 +150,7 @@ function populateRooms() {
     });
 }
 
-// Add new batch processing functions
+// Batch processor for handling operations
 class BatchProcessor {
     constructor() {
         this.queue = [];
@@ -169,7 +168,6 @@ class BatchProcessor {
             clearTimeout(this.timeout);
         }
         
-        // Wait 2 seconds after last operation before processing batch
         this.timeout = setTimeout(() => this.processBatch(), 2000);
     }
 
@@ -180,23 +178,13 @@ class BatchProcessor {
         showLoading();
 
         try {
-            // Process all queued operations
             const operations = [...this.queue];
             this.queue = [];
 
-            // Update local state for all operations
             operations.forEach(op => op.updateLocal());
-
-            // Single API call to update JSONBin
             await updateJSONBin();
-
-            // Single Telegram message for all operations
-            const message = operations
-                .map(op => op.getMessage())
-                .join('\n');
+            const message = operations.map(op => op.getMessage()).join('\n');
             await sendTelegramMessage(message);
-
-            // Update UI for all operations
             operations.forEach(op => op.updateUI());
 
         } catch (error) {
@@ -209,10 +197,9 @@ class BatchProcessor {
     }
 }
 
-// Create global batch processor
 const batchProcessor = new BatchProcessor();
 
-// Add these new functions
+// Pending changes bar
 function showPendingChangesBar() {
     const pendingBar = document.querySelector('.pending-changes-bar') || createPendingChangesBar();
     const count = Object.keys(pendingChanges.statusUpdates).length;
@@ -245,25 +232,25 @@ function createPendingChangesBar() {
     return bar;
 }
 
-// Update the updateRoomStatus function
+// Handle status toggle
+function handleStatusToggle(roomNumber, isChecked) {
+    const status = isChecked ? 'checked-in' : 'checked-out';
+    updateRoomStatus(roomNumber, status);
+}
+
+// Update room status
 async function updateRoomStatus(roomNumber, status) {
-    // Store the pending change
     pendingChanges.statusUpdates[roomNumber] = status;
-    
-    // Update UI to show pending state
     const roomCard = document.getElementById(`room-${roomNumber}`);
     roomCard.classList.add('pending');
-    
-    // Show the pending changes bar
     showPendingChangesBar();
 }
 
-// Update submitAllChanges function to only handle status updates
+// Submit all changes
 async function submitAllChanges() {
     showLoading();
     
     try {
-        // Apply all status updates
         Object.entries(pendingChanges.statusUpdates).forEach(([roomNumber, status]) => {
             if (!roomStatus[roomNumber]) {
                 roomStatus[roomNumber] = { status: status, notes: [] };
@@ -272,10 +259,8 @@ async function submitAllChanges() {
             }
         });
 
-        // Single API call to update JSONBin
         await updateJSONBin();
 
-        // Single Telegram message for all changes
         const messages = Object.entries(pendingChanges.statusUpdates).map(([room, status]) =>
             status === 'checked-in' ? 
                 `🏨 Room ${room} has been checked in` :
@@ -286,16 +271,13 @@ async function submitAllChanges() {
             await sendTelegramMessage(messages.join('\n'));
         }
 
-        // Update UI for all changes
         Object.entries(pendingChanges.statusUpdates).forEach(([roomNumber, status]) => {
             updateRoomCardUI(roomNumber, status);
         });
 
-        // Clear pending changes
         pendingChanges = { statusUpdates: {} };
         showPendingChangesBar();
         
-        // Remove pending state from all cards
         document.querySelectorAll('.room-card.pending').forEach(card => {
             card.classList.remove('pending');
         });
@@ -308,7 +290,7 @@ async function submitAllChanges() {
     }
 }
 
-// Update cancelAllChanges to only handle status updates
+// Cancel all changes
 function cancelAllChanges() {
     pendingChanges = { statusUpdates: {} };
     document.querySelectorAll('.room-card.pending').forEach(card => {
@@ -317,23 +299,16 @@ function cancelAllChanges() {
     showPendingChangesBar();
 }
 
-// Function to load initial room status
+// Load initial room status
 async function loadRoomStatus() {
     showLoading();
     
     try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            headers: {
-                'X-Master-Key': API_KEY
-            }
-        });
-
+        const response = await fetch(`${API_BASE_URL}/rooms`);
         if (!response.ok) throw new Error('Failed to load room status');
-
         const data = await response.json();
-        roomStatus = data.record;
+        roomStatus = data;
 
-        // Update UI with loaded status
         Object.entries(roomStatus).forEach(([roomNumber, roomData]) => {
             updateRoomCardUI(roomNumber, roomData.status);
         });
@@ -346,17 +321,15 @@ async function loadRoomStatus() {
     }
 }
 
-// Updated addNote function
+// Add note
 function addNote(roomNumber) {
     const note = prompt('Enter note for Room ' + roomNumber + ':');
     if (note) {
-        // Create note object
         const newNote = {
             text: note,
             timestamp: new Date().toISOString()
         };
 
-        // Initialize room if it doesn't exist
         if (!roomStatus[roomNumber]) {
             roomStatus[roomNumber] = { status: 'checked-out', notes: [] };
         }
@@ -364,13 +337,9 @@ function addNote(roomNumber) {
             roomStatus[roomNumber].notes = [];
         }
 
-        // Add note directly
         roomStatus[roomNumber].notes.push(newNote);
-
-        // Update UI immediately
         updateRoomCardUI(roomNumber, roomStatus[roomNumber].status);
 
-        // Save to JSONBin and send Telegram message in background
         updateJSONBin()
             .then(() => sendTelegramMessage(`📝 New note for Room ${roomNumber}:\n${note}`))
             .catch(error => {
@@ -380,13 +349,12 @@ function addNote(roomNumber) {
     }
 }
 
-// Add function to update JSONBin
+// Update JSONBin
 async function updateJSONBin() {
-    const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+    const response = await fetch(`${API_BASE_URL}/rooms`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': API_KEY
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(roomStatus)
     });
@@ -394,13 +362,13 @@ async function updateJSONBin() {
     if (!response.ok) throw new Error('Failed to update status');
 }
 
-// Add function to send Telegram messages
+// Send Telegram message
 async function sendTelegramMessage(message) {
     try {
         const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 chat_id: TELEGRAM_CHAT_ID,
@@ -415,11 +383,10 @@ async function sendTelegramMessage(message) {
     }
 }
 
-// Update the viewNotes function to add a Clear All Notes button
+// View notes
 function viewNotes(roomNumber) {
     const notes = roomStatus[roomNumber]?.notes || [];
     
-    // Create modal content
     const modalContent = document.createElement('div');
     modalContent.className = 'notes-modal';
     
@@ -447,14 +414,13 @@ function viewNotes(roomNumber) {
         <button class="close-modal-btn" onclick="closeNotesModal()">Close</button>
     `;
 
-    // Show modal
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 }
 
-// Function to delete a note
+// Delete note
 async function deleteNote(roomNumber, index) {
     const confirmed = confirm('Are you sure you want to delete this note?');
     if (!confirmed) return;
@@ -474,7 +440,7 @@ async function deleteNote(roomNumber, index) {
     }
 }
 
-// Function to close the modal
+// Close modal
 function closeNotesModal() {
     const modal = document.querySelector('.modal');
     if (modal) {
@@ -482,23 +448,16 @@ function closeNotesModal() {
     }
 }
 
-// Add new function to clear all notes
+// Clear all notes for a room
 async function clearAllNotes(roomNumber) {
     const confirmed = confirm(`Are you sure you want to delete all notes for Room ${roomNumber}?`);
     if (!confirmed) return;
 
     showLoading();
     try {
-        // Clear all notes for the room
         roomStatus[roomNumber].notes = [];
-        
-        // Update JSONBin
         await updateJSONBin();
-        
-        // Send Telegram notification
         await sendTelegramMessage(`🗑️ All notes cleared for Room ${roomNumber}`);
-        
-        // Close modal and update UI
         closeNotesModal();
         updateRoomCardUI(roomNumber, roomStatus[roomNumber].status);
     } catch (error) {
@@ -509,86 +468,22 @@ async function clearAllNotes(roomNumber) {
     }
 }
 
-// Update the building switcher functionality
-function initializeBuildingSwitcher() {
-    const buttons = document.querySelectorAll('.building-btn');
-    const buildings = {
-        main: document.getElementById('main-building'),
-        new: document.getElementById('new-building')
-    };
-
-    // Show main building by default
-    buildings.main.style.display = 'block';
-    buildings.main.style.opacity = '1';
-    buildings.main.style.transform = 'translateY(0)';
-
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Update button states
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // Show selected building with animation
-            const buildingToShow = button.dataset.building;
-            Object.entries(buildings).forEach(([key, building]) => {
-                if (key === buildingToShow) {
-                    building.style.display = 'block';
-                    // Force a reflow to trigger the animation
-                    building.offsetHeight;
-                    building.style.opacity = '1';
-                    building.style.transform = 'translateY(0)';
-                } else {
-                    building.style.opacity = '0';
-                    building.style.transform = 'translateY(10px)';
-                    setTimeout(() => {
-                        building.style.display = 'none';
-                    }, 300); // Match the transition duration
-                }
-            });
-        });
-    });
-}
-
-// Add this to your existing JavaScript
-function initializeScrollHeader() {
-    const header = document.querySelector('.header');
-    let lastScrollTop = 0;
-    
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // Add or remove condensed class based on scroll position
-        if (scrollTop > 50) {
-            header.classList.add('condensed');
-        } else {
-            header.classList.remove('condensed');
-        }
-        
-        lastScrollTop = scrollTop;
-    });
-}
-
-// Add this new function
+// Clear all notes for all rooms
 async function clearAllNotes() {
     const confirmed = confirm('Are you sure you want to clear all notes from all rooms?');
     if (!confirmed) return;
 
     showLoading();
     try {
-        // Clear notes from all rooms while preserving their status
         Object.keys(roomStatus).forEach(roomNumber => {
             if (roomStatus[roomNumber]) {
                 roomStatus[roomNumber].notes = [];
             }
         });
 
-        // Update JSONBin
         await updateJSONBin();
-
-        // Send Telegram notification
         await sendTelegramMessage('🗑️ All notes have been cleared from all rooms');
 
-        // Update UI for all rooms
         Object.keys(roomStatus).forEach(roomNumber => {
             if (roomStatus[roomNumber]) {
                 updateRoomCardUI(roomNumber, roomStatus[roomNumber].status);
@@ -605,27 +500,22 @@ async function clearAllNotes() {
     }
 }
 
-// Add this new function for checking out all rooms
+// Checkout all rooms
 async function checkoutAllRooms() {
     const confirmed = confirm('Are you sure you want to check out all rooms?');
     if (!confirmed) return;
 
     showLoading();
     try {
-        // Update all rooms to checked-out status
         Object.keys(roomStatus).forEach(roomNumber => {
             if (roomStatus[roomNumber]?.status === 'checked-in') {
                 roomStatus[roomNumber].status = 'checked-out';
             }
         });
 
-        // Update JSONBin
         await updateJSONBin();
-
-        // Send Telegram notification
         await sendTelegramMessage('🔑 All rooms have been checked out');
 
-        // Update UI for all rooms
         Object.keys(roomStatus).forEach(roomNumber => {
             updateRoomCardUI(roomNumber, roomStatus[roomNumber].status);
         });
@@ -638,10 +528,58 @@ async function checkoutAllRooms() {
     }
 }
 
-// Add new function to handle toggle
-function handleStatusToggle(roomNumber, isChecked) {
-    const status = isChecked ? 'checked-in' : 'checked-out';
-    updateRoomStatus(roomNumber, status);
+// Initialize building switcher
+function initializeBuildingSwitcher() {
+    const buttons = document.querySelectorAll('.building-btn');
+    const buildings = {
+        main: document.getElementById('main-building'),
+        new: document.getElementById('new-building')
+    };
+
+    buildings.main.style.display = 'block';
+    buildings.main.style.opacity = '1';
+    buildings.main.style.transform = 'translateY(0)';
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const buildingToShow = button.dataset.building;
+            Object.entries(buildings).forEach(([key, building]) => {
+                if (key === buildingToShow) {
+                    building.style.display = 'block';
+                    building.offsetHeight;
+                    building.style.opacity = '1';
+                    building.style.transform = 'translateY(0)';
+                } else {
+                    building.style.opacity = '0';
+                    building.style.transform = 'translateY(10px)';
+                    setTimeout(() => {
+                        building.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+    });
+}
+
+// Initialize scroll header
+function initializeScrollHeader() {
+    const header = document.querySelector('.header');
+    let lastScrollTop = 0;
+    
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 50) {
+            header.classList.add('condensed');
+        } else {
+            header.classList.remove('condensed');
+        }
+        
+        lastScrollTop = scrollTop;
+    });
 }
 
 // Initialize the page
